@@ -4,11 +4,9 @@ A production-grade RESTful API built with Laravel 10 for managing multi-vendor p
 
 ## 📋 Table of Contents
 
-- [Architecture & Design Decisions](#architecture--design-decisions)
 - [Quick Start](#quick-start)
 - [API Documentation](#api-documentation)
 - [Database Design](#database-design)
-- [Concurrency & Data Integrity](#concurrency--data-integrity)
 - [Testing](#testing)
 - [Deployment](#deployment)
 
@@ -20,6 +18,7 @@ A production-grade RESTful API built with Laravel 10 for managing multi-vendor p
 - PHP 8.1+ 
 - MySQL 8.0+ or SQLite
 - Composer
+- Node.js & npm
 - Docker & Docker Compose (optional)
 
 ### Installation
