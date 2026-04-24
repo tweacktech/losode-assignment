@@ -17,7 +17,7 @@ A production-grade RESTful API built with Laravel 12 for managing multi-vendor p
 - PHP 8.1+ 
 - MySQL 8.0+ or SQLite
 - Composer
-- Node.js & npm
+- Node.js & npm (use 22.21+)
 - Docker & Docker Compose (optional)
 
 ### Installation
