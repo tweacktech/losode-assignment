@@ -89,7 +89,7 @@ Endpoints marked with 🔐 require the `Authorization: Bearer {token}` header.
 
 #### Register Vendor
 ```http
-POST /auth/register
+POST /vendor/register
 Content-Type: application/json
 
 {
@@ -120,7 +120,7 @@ Content-Type: application/json
 
 #### Login
 ```http
-POST /auth/login
+POST /vendor/login
 Content-Type: application/json
 
 {
@@ -149,13 +149,13 @@ Content-Type: application/json
 
 #### Logout 🔐
 ```http
-POST /auth/logout
+POST /vendor/logout
 Authorization: Bearer {token}
 ```
 
 #### Get Current User 🔐
 ```http
-GET /auth/me
+GET /vendor/me
 Authorization: Bearer {token}
 ```
 
@@ -292,7 +292,7 @@ Content-Type: application/json
 
 ---
 
-## 📊 Database Design
+##  Database Design
 
 ### Entity Relationship Diagram
 
@@ -378,7 +378,7 @@ Required for token-based authentication
 
 ---
 
-## 🔒 Concurrency & Data Integrity
+## Concurrency & Data Integrity
 
 ### The Two Users Problem
 
@@ -429,7 +429,7 @@ ab -n 100 -c 100 -p order.json -T application/json http://localhost:8000/api/ord
 
 ---
 
-## 🧪 Testing
+##  Testing
 
 ### Feature Tests
 
@@ -456,11 +456,17 @@ php artisan test --coverage
 
 ### Manual API Testing
 
-Use Postman or cURL. Example:
+Use Postman => Losode_API_Postman_Collection.json
+
+or 
+ClientRest => API_Tests.http
+
+both files are withing the project directory
+
 
 ```bash
 # Register vendor
-curl -X POST http://localhost:8000/api/auth/register \
+curl -X POST http://localhost:8000/api/vendor/register \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Test Vendor",
@@ -476,7 +482,7 @@ curl -X GET http://localhost:8000/api/vendor/products \
 
 ---
 
-## 📦 Deployment
+##  Deployment
 
 ### Environment Variables
 
