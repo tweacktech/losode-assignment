@@ -1,0 +1,772 @@
+### Losode Vendor API - Complete REST Client Tests
+### Base URL: http://127.0.0.1:8000/api
+### All endpoints for testing with VS Code REST Client or similar
+
+@baseUrl = http://127.0.0.1:8000/api
+@vendorToken =7|qK5igDJWxiduiYCnCPYCwu8WAaU532Z9DzSxdWVz68697687
+@customerToken =6|xzcxXdzZ23U22HeqbEX0tvagXRtRRIjtIkiH91El914cc71f
+@productId = 1
+@orderId = 1
+@userId = 1
+
+################################################################################
+# AUTHENTICATION - VENDOR
+################################################################################
+
+### 1. Register Vendor
+POST {{baseUrl}}/vendor/register
+Content-Type: application/json
+
+{
+  "name": "Test Vendor",
+  "email": "test.vendor@example.com",
+  "password": "password123",
+  "business_name": "Test Business",
+  "phone": "+234900000000"
+}
+
+###
+
+### 2. Login Vendor
+POST {{baseUrl}}/vendor/login
+Content-Type: application/json
+
+{
+  "email": "test.vendor@example.com",
+  "password": "password123"
+}
+
+###
+
+### 3. Get Vendor Profile (Protected)
+GET {{baseUrl}}/vendor/me
+Authorization: Bearer {{vendorToken}}
+
+###
+
+### 4. Logout Vendor (Protected)
+POST {{baseUrl}}/vendor/logout
+Authorization: Bearer {{vendorToken}}
+
+###
+
+################################################################################
+# AUTHENTICATION - CUSTOMER/USER
+################################################################################
+
+### 5. Register Customer
+POST {{baseUrl}}/users/register
+Content-Type: application/json
+
+{
+  "name": "Test Customer",
+  "email": "test.customer@example.com",
+  "password": "password123",
+  "phone": "+234901000000",
+  "address": "123 Main Street",
+  "city": "Lagos",
+  "state": "Lagos",
+  "postal_code": "100001"
+}
+
+###
+
+### 6. Login Customer
+POST {{baseUrl}}/users/login
+Content-Type: application/json
+
+{
+  "email": "chioma@customer.com",
+  "password": "password123"
+}
+
+###
+
+### 7. Get Customer Profile (Protected)
+GET {{baseUrl}}/users/me
+Authorization: Bearer {{customerToken}}
+
+###
+
+### 8. Update Customer Profile (Protected)
+PUT {{baseUrl}}/users/profile
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "name": "Updated Name",
+  "phone": "+234902000000",
+  "address": "456 Oak Avenue",
+  "city": "Ibadan"
+}
+
+###
+
+### 9. Get Customer Statistics (Protected)
+GET {{baseUrl}}/users/stats
+Authorization: Bearer {{customerToken}}
+
+###
+
+### 10. Logout Customer (Protected)
+POST {{baseUrl}}/users/logout
+Authorization: Bearer {{customerToken}}
+
+###
+
+### 11. Deactivate Customer Account (Protected)
+DELETE {{baseUrl}}/users/account
+Authorization: Bearer {{customerToken}}
+
+###
+
+################################################################################
+# PRODUCTS - PUBLIC
+################################################################################
+
+### 12. Get All Products (Public - Paginated)
+GET {{baseUrl}}/products
+Accept: application/json
+
+###
+
+### 13. Get All Products with Pagination
+GET {{baseUrl}}/products?page=2
+Accept: application/json
+
+###
+
+### 14. Search Products
+GET {{baseUrl}}/products?search=wireless
+Accept: application/json
+
+###
+
+### 15. Get Single Product
+GET {{baseUrl}}/products/1
+Accept: application/json
+
+###
+
+### 16. Get Product Details
+GET {{baseUrl}}/products/2
+Accept: application/json
+
+###
+
+################################################################################
+# PRODUCTS - VENDOR (Protected)
+################################################################################
+
+### 17. Get Vendor's Products
+GET {{baseUrl}}/vendor/products
+Authorization: Bearer {{vendorToken}}
+Accept: application/json
+
+###
+
+### 18. Create Product (Protected)
+POST {{baseUrl}}/vendor/products
+Authorization: Bearer {{vendorToken}}
+Content-Type: application/json
+
+{
+  "name": "New Wireless Product",
+  "description": "Premium quality wireless device",
+  "price": 25000,
+  "stock_quantity": 50,
+  "status": "active"
+}
+
+###
+
+### 19. Create Another Product (Protected)
+POST {{baseUrl}}/vendor/products
+Authorization: Bearer {{vendorToken}}
+Content-Type: application/json
+
+{
+  "name": "USB Cable",
+  "description": "High quality USB-C cable",
+  "price": 5000,
+  "stock_quantity": 200,
+  "status": "active"
+}
+
+###
+
+### 20. Update Product (Protected)
+PUT {{baseUrl}}/vendor/products/11
+Authorization: Bearer {{vendorToken}}
+Content-Type: application/json
+
+{
+  "name": "Updated Product Name",
+  "price": 30000,
+  "stock_quantity": 45
+}
+
+###
+
+### 21. Update Product Stock (Protected)
+PUT {{baseUrl}}/vendor/products/2
+Authorization: Bearer {{vendorToken}}
+Content-Type: application/json
+
+{
+  "stock_quantity": 150
+}
+
+###
+
+### 22. Delete Product (Protected)
+DELETE {{baseUrl}}/vendor/products/3
+Authorization: Bearer {{vendorToken}}
+
+###
+
+################################################################################
+# ORDERS - CUSTOMER (Protected)
+################################################################################
+
+### 23. Place Order (Protected - Atomic Transaction)
+POST {{baseUrl}}/orders
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "product_id": 1,
+  "quantity": 2,
+  "notes": "Please deliver carefully"
+}
+
+###
+
+### 24. Place Another Order
+POST {{baseUrl}}/orders
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "product_id": 2,
+  "quantity": 1
+}
+
+###
+
+### 25. Place Order with Multiple Quantity
+POST {{baseUrl}}/orders
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "product_id": 4,
+  "quantity": 5,
+  "notes": "Gift order"
+}
+
+###
+
+### 26. Get My Orders (Protected)
+GET {{baseUrl}}/orders/my-orders
+Authorization: Bearer {{customerToken}}
+Accept: application/json
+
+###
+
+### 27. Get My Orders with Pagination
+GET {{baseUrl}}/orders/my-orders?page=1
+Authorization: Bearer {{customerToken}}
+Accept: application/json
+
+###
+
+### 28. Get Single Order Details (Protected)
+GET {{baseUrl}}/orders/1
+Authorization: Bearer {{customerToken}}
+Accept: application/json
+
+###
+
+### 29. Cancel Order (Protected)
+PUT {{baseUrl}}/orders/1/cancel
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+}
+
+###
+
+### 30. Try to Place Order with Insufficient Stock
+POST {{baseUrl}}/orders
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "product_id": 1,
+  "quantity": 1000,
+  "notes": "This should fail - insufficient stock"
+}
+
+###
+
+################################################################################
+# ORDERS - VENDOR (Protected)
+################################################################################
+
+### 31. Get Vendor's Orders
+GET {{baseUrl}}/vendor/orders
+Authorization: Bearer {{vendorToken}}
+Accept: application/json
+
+###
+
+### 32. Get Vendor's Orders with Pagination
+GET {{baseUrl}}/vendor/orders?page=1
+Authorization: Bearer {{vendorToken}}
+Accept: application/json
+
+###
+
+### 33. Update Order Status to Processing (Protected)
+PUT {{baseUrl}}/vendor/orders/1/status
+Authorization: Bearer {{vendorToken}}
+Content-Type: application/json
+
+{
+  "status": "processing"
+}
+
+###
+
+### 34. Update Order Status to Shipped (Protected)
+PUT {{baseUrl}}/vendor/orders/1/status
+Authorization: Bearer {{vendorToken}}
+Content-Type: application/json
+
+{
+  "status": "shipped"
+}
+
+###
+
+### 35. Update Order Status to Completed (Protected)
+PUT {{baseUrl}}/vendor/orders/1/status
+Authorization: Bearer {{vendorToken}}
+Content-Type: application/json
+
+{
+  "status": "completed"
+}
+
+###
+
+### 36. Cancel Order via Vendor
+PUT {{baseUrl}}/vendor/orders/2/status
+Authorization: Bearer {{vendorToken}}
+Content-Type: application/json
+
+{
+  "status": "cancelled"
+}
+
+###
+
+################################################################################
+# STATISTICS & PUBLIC DATA
+################################################################################
+
+### 37. Get Order Statistics (Public)
+GET {{baseUrl}}/orders/stats
+Accept: application/json
+
+###
+
+### 38. Get Recent Orders (Public)
+GET {{baseUrl}}/orders/recent
+Accept: application/json
+
+###
+
+################################################################################
+# ERROR HANDLING TESTS
+################################################################################
+
+### 39. Test 404 - Non-existent Product
+GET {{baseUrl}}/products/99999
+Accept: application/json
+
+###
+
+### 40. Test 401 - Missing Authentication Token
+GET {{baseUrl}}/orders/my-orders
+Accept: application/json
+
+###
+
+### 41. Test 422 - Invalid Registration Data (Missing Email)
+POST {{baseUrl}}/users/register
+Content-Type: application/json
+
+{
+  "name": "Test User",
+  "password": "password123"
+}
+
+###
+
+### 42. Test 422 - Invalid Order Quantity (Zero)
+POST {{baseUrl}}/orders
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "product_id": 1,
+  "quantity": 0
+}
+
+###
+
+### 43. Test 422 - Invalid Order - Non-existent Product
+POST {{baseUrl}}/orders
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "product_id": 99999,
+  "quantity": 1
+}
+
+###
+
+### 44. Test 409 - Duplicate Email Registration
+POST {{baseUrl}}/users/register
+Content-Type: application/json
+
+{
+  "name": "Duplicate User",
+  "email": "chioma@customer.com",
+  "password": "password123",
+  "phone": "+234903000000"
+}
+
+###
+
+### 45. Test 401 - Invalid Login Credentials
+POST {{baseUrl}}/users/login
+Content-Type: application/json
+
+{
+  "email": "nonexistent@example.com",
+  "password": "wrongpassword"
+}
+
+###
+
+################################################################################
+# CONCURRENCY & RACE CONDITION TEST
+################################################################################
+
+### 46. Place Order 1 (Test Race Condition)
+POST {{baseUrl}}/orders
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "product_id": 1,
+  "quantity": 1,
+  "notes": "Concurrent order 1"
+}
+
+###
+
+### 47. Place Order 2 (Test Race Condition)
+POST {{baseUrl}}/orders
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "product_id": 1,
+  "quantity": 1,
+  "notes": "Concurrent order 2"
+}
+
+###
+
+### 48. Place Order 3 (Test Race Condition)
+POST {{baseUrl}}/orders
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "product_id": 1,
+  "quantity": 1,
+  "notes": "Concurrent order 3"
+}
+
+###
+
+################################################################################
+# WORKFLOW TESTS
+################################################################################
+
+### 49. Complete Workflow - Register and Login as Vendor
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Workflow Vendor",
+  "email": "workflow.vendor@example.com",
+  "password": "password123",
+  "business_name": "Workflow Business",
+  "phone": "+234904000000"
+}
+
+###
+
+### 50. Complete Workflow - Create Product as Vendor
+POST {{baseUrl}}/vendor/products
+Authorization: Bearer {{vendorToken}}
+Content-Type: application/json
+
+{
+  "name": "Workflow Product",
+  "description": "Product for workflow test",
+  "price": 15000,
+  "stock_quantity": 100,
+  "status": "active"
+}
+
+###
+
+### 51. Complete Workflow - Register and Login as Customer
+POST {{baseUrl}}/users/register
+Content-Type: application/json
+
+{
+  "name": "Workflow Customer",
+  "email": "workflow.customer@example.com",
+  "password": "password123",
+  "phone": "+234905000000",
+  "address": "789 Test Street",
+  "city": "Abuja"
+}
+
+###
+
+### 52. Complete Workflow - Browse Products as Customer
+GET {{baseUrl}}/products
+Accept: application/json
+
+###
+
+### 53. Complete Workflow - Place Order as Customer
+POST {{baseUrl}}/orders
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "product_id": 5,
+  "quantity": 2,
+  "notes": "Workflow test order"
+}
+
+###
+
+### 54. Complete Workflow - View My Orders as Customer
+GET {{baseUrl}}/orders/my-orders
+Authorization: Bearer {{customerToken}}
+Accept: application/json
+
+###
+
+### 55. Complete Workflow - View Customer Orders as Vendor
+GET {{baseUrl}}/vendor/orders
+Authorization: Bearer {{vendorToken}}
+Accept: application/json
+
+###
+
+### 56. Complete Workflow - Update Order Status as Vendor
+PUT {{baseUrl}}/vendor/orders/8/status
+Authorization: Bearer {{vendorToken}}
+Content-Type: application/json
+
+{
+  "status": "shipped"
+}
+
+###
+
+################################################################################
+# AUTHORIZATION TESTS
+################################################################################
+
+### 57. Test Vendor Cannot Delete Other Vendor's Product
+DELETE {{baseUrl}}/vendor/products/1
+Authorization: Bearer {{vendorToken}}
+
+###
+
+### 58. Test Customer Cannot Access Vendor Endpoints
+GET {{baseUrl}}/vendor/products
+Authorization: Bearer {{customerToken}}
+Accept: application/json
+
+###
+
+### 59. Test Vendor Cannot Place Orders
+POST {{baseUrl}}/orders
+Authorization: Bearer {{vendorToken}}
+Content-Type: application/json
+
+{
+  "product_id": 1,
+  "quantity": 1
+}
+
+###
+
+################################################################################
+# VALIDATION TESTS
+################################################################################
+
+### 60. Test Invalid Email Format
+POST {{baseUrl}}/users/register
+Content-Type: application/json
+
+{
+  "name": "Test User",
+  "email": "invalid-email",
+  "password": "password123",
+  "phone": "+234906000000"
+}
+
+###
+
+### 61. Test Password Too Short
+POST {{baseUrl}}/users/register
+Content-Type: application/json
+
+{
+  "name": "Test User",
+  "email": "test@example.com",
+  "password": "short",
+  "phone": "+234907000000"
+}
+
+###
+
+### 62. Test Invalid Product Price
+POST {{baseUrl}}/vendor/products
+Authorization: Bearer {{vendorToken}}
+Content-Type: application/json
+
+{
+  "name": "Invalid Product",
+  "description": "Product with invalid price",
+  "price": -100,
+  "stock_quantity": 50,
+  "status": "active"
+}
+
+###
+
+### 63. Test Negative Stock Quantity
+POST {{baseUrl}}/vendor/products
+Authorization: Bearer {{vendorToken}}
+Content-Type: application/json
+
+{
+  "name": "Invalid Stock Product",
+  "description": "Product with invalid stock",
+  "price": 10000,
+  "stock_quantity": -5,
+  "status": "active"
+}
+
+###
+
+################################################################################
+# SEARCH & FILTER TESTS
+################################################################################
+
+### 64. Search for Earbuds
+GET {{baseUrl}}/products?search=earbuds
+Accept: application/json
+
+###
+
+### 65. Search for Keyboard
+GET {{baseUrl}}/products?search=keyboard
+Accept: application/json
+
+###
+
+### 66. Search for Fashion Items
+GET {{baseUrl}}/products?search=dress
+Accept: application/json
+
+###
+
+### 67. Pagination Test - Page 2
+GET {{baseUrl}}/products?page=2
+Accept: application/json
+
+###
+
+################################################################################
+# RESPONSE FORMAT TESTS
+################################################################################
+
+### 68. Test Success Response Format
+GET {{baseUrl}}/products/1
+Accept: application/json
+
+###
+
+### 69. Test Error Response Format
+GET {{baseUrl}}/products/99999
+Accept: application/json
+
+###
+
+### 70. Test Paginated Response Format
+GET {{baseUrl}}/products?page=1
+Accept: application/json
+
+###
+
+################################################################################
+# NOTES FOR TESTING
+################################################################################
+
+# Before running tests:
+# 1. Start the Laravel server: php artisan serve
+# 2. Run migrations and seeders: php artisan migrate --seed
+# 3. Update @vendorToken with actual token from login response
+# 4. Update @customerToken with actual token from login response
+# 5. Update @productId and @orderId as needed based on responses
+
+# Expected Status Codes:
+# 200 - OK (successful GET, PUT, DELETE)
+# 201 - Created (successful POST creating resource)
+# 400 - Bad Request (validation or business logic error)
+# 401 - Unauthorized (missing or invalid token)
+# 403 - Forbidden (insufficient permissions)
+# 404 - Not Found (resource doesn't exist)
+# 409 - Conflict (duplicate entry)
+# 422 - Unprocessable Entity (validation error)
+# 500 - Server Error
+
+# Common Response Structure:
+# {
+#   "success": true/false,
+#   "status": 200,
+#   "message": "Success message",
+#   "data": { ... },
+#   "code": "SUCCESS_CODE"
+# }
+
+################################################################################
