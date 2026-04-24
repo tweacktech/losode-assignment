@@ -1,6 +1,6 @@
 # Losode Vendor Product & Inventory Management API
 
-A production-grade RESTful API built with Laravel 10 for managing multi-vendor products and inventory. This system demonstrates clean architecture, proper domain modeling, and enterprise-level best practices.
+A production-grade RESTful API built with Laravel 12 for managing multi-vendor products and inventory. This system demonstrates clean architecture, proper domain modeling, and enterprise-level best practices. (Note:: This was a technical assignment for a job application, not a real production system. But it follows real-world standards and patterns.)
 
 ## 📋 Table of Contents
 
@@ -8,7 +8,6 @@ A production-grade RESTful API built with Laravel 10 for managing multi-vendor p
 - [API Documentation](#api-documentation)
 - [Database Design](#database-design)
 - [Testing](#testing)
-- [Deployment](#deployment)
 
 
 ## 🚀 Quick Start
