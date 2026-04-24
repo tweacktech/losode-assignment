@@ -5,203 +5,205 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\UpdateProfileRequest;
+use App\Http\Requests\UpdatePasswordRequest;
 use App\Http\Resources\UserResource;
-use App\Models\User;
+use App\Services\UserService;
 use App\Traits\ApiResponse;
 use Exception;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
     use ApiResponse;
 
-    /**
-     * Register a new user (customer)
-     *
-     * POST /api/users/register
-     */
+    protected UserService $userService;
+
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
+
     public function register(RegisterRequest $request)
     {
         try {
-            // Check if email already exists
-            if (User::where('email', $request->email)->exists()) {
-                return $this->conflict('Email already registered');
-            }
-
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'phone' => $request->phone ?? null,
-                'address' => $request->address ?? null,
-                'city' => $request->city ?? null,
-                'state' => $request->state ?? null,
-                'postal_code' => $request->postal_code ?? null,
-                'is_active' => true,
-            ]);
+            $user = $this->userService->register($request->validated());
 
             return $this->created(
                 new UserResource($user),
                 'User registered successfully'
             );
         } catch (Exception $e) {
-            return $this->serverError($e->getMessage());
+            $statusCode = $e->getCode() >= 100 && $e->getCode() <= 599 ? $e->getCode() : 500;
+            return $this->error($e->getMessage(), $statusCode);
         }
     }
 
-    /**
-     * Login user (customer)
-     *
-     * POST /api/users/login
-     */
+
     public function login(LoginRequest $request)
     {
         try {
-            $user = User::where('email', $request->email)->first();
-
-            if (!$user || !Hash::check($request->password, $user->password)) {
-                return $this->unauthorized('Invalid email or password');
-            }
-
-            if (!$user->isActive()) {
-                return $this->forbidden('Your account is inactive');
-            }
-
-            $token = $user->createToken('api-token')->plainTextToken;
+            $result = $this->userService->login($request->validated());
 
             return $this->success([
-                'user' => new UserResource($user),
-                'token' => $token,
+                'user' => new UserResource($result['user']),
+                'token' => $result['token'],
+                'token_type' => 'Bearer',
             ], 'Login successful');
+        } catch (Exception $e) {
+            $statusCode = $e->getCode() >= 100 && $e->getCode() <= 599 ? $e->getCode() : 401;
+            return $this->error($e->getMessage(), $statusCode);
+        }
+    }
+
+
+    public function me()
+    {
+        try {
+            $user = $this->userService->getAuthenticatedUser(Auth::user());
+
+            return $this->success(
+                new UserResource($user),
+                'Current user information retrieved successfully'
+            );
         } catch (Exception $e) {
             return $this->serverError($e->getMessage());
         }
     }
 
-    /**
-     * Get current authenticated user
-     *
-     * GET /api/users/me
-     */
-    public function me()
+
+    public function updateProfile(UpdateProfileRequest $request)
     {
-        return $this->success(
-            new UserResource(auth('sanctum')->user()),
-            'Current user information'
-        );
+        try {
+            $user = $this->userService->updateProfile(
+                Auth::user(),
+                $request->validated()
+            );
+
+            return $this->success(
+                new UserResource($user),
+                'Profile updated successfully'
+            );
+        } catch (Exception $e) {
+            return $this->serverError($e->getMessage());
+        }
     }
 
-    /**
-     * Update user profile
-     *
-     * PUT /api/users/profile
-     */
-    public function updateProfile()
+
+    public function getOrders(Request $request)
     {
-        $user = auth('sanctum')->user();
+        try {
+            $perPage = $request->get('per_page', 15);
+            $orders = $this->userService->getUserOrders(Auth::user(), $perPage);
 
-        $validated = request()->validate([
-            'name' => ['sometimes', 'string', 'max:255'],
-            'phone' => ['sometimes', 'string', 'max:20'],
-            'address' => ['sometimes', 'string', 'max:255'],
-            'city' => ['sometimes', 'string', 'max:100'],
-            'state' => ['sometimes', 'string', 'max:100'],
-            'postal_code' => ['sometimes', 'string', 'max:20'],
-        ]);
-
-        $user->update(array_filter($validated));
-
-        return $this->success(
-            new UserResource($user),
-            'Profile updated successfully'
-        );
+            return $this->paginated($orders, 'User orders retrieved successfully');
+        } catch (Exception $e) {
+            return $this->serverError($e->getMessage());
+        }
     }
 
-    /**
-     * Get user's orders
-     *
-     * GET /api/users/orders
-     */
-    public function getOrders()
-    {
-        $user = auth('sanctum')->user();
 
-        $orders = $user->orders()
-            ->with(['product', 'vendor'])
-            ->recent()
-            ->paginate(15);
-
-        return $this->paginated($orders, 'User orders retrieved');
-    }
-
-    /**
-     * Get user's order statistics
-     *
-     * GET /api/users/stats
-     */
     public function getStats()
     {
-        $user = auth('sanctum')->user();
+        try {
+            $stats = $this->userService->getUserStats(Auth::user());
 
-        $stats = [
-            'total_orders' => $user->orders()->count(),
-            'completed_orders' => $user->orders()->completed()->count(),
-            'pending_orders' => $user->orders()->pending()->count(),
-            'total_spent' => $user->orders()->completed()->sum('total_price'),
-            'average_order_value' => $user->orders()->completed()->avg('total_price'),
-        ];
-
-        return $this->success($stats, 'User statistics');
+            return $this->success($stats, 'User statistics retrieved successfully');
+        } catch (Exception $e) {
+            return $this->serverError($e->getMessage());
+        }
     }
 
-    /**
-     * Logout user
-     *
-     * POST /api/users/logout
-     */
+
     public function logout()
     {
-        auth('sanctum')->user()->currentAccessToken()->delete();
+        try {
+            $this->userService->logout(Auth::user());
 
-        return $this->success(null, 'Logged out successfully');
+            return $this->success(null, 'Logged out successfully');
+        } catch (Exception $e) {
+            return $this->serverError($e->getMessage());
+        }
     }
 
-    /**
-     * Get all users (admin only - optional)
-     *
-     * GET /api/users
-     */
-    public function index()
+
+    public function logoutAllDevices()
     {
-        $users = User::where('is_active', true)
-            ->paginate(15);
+        try {
+            $this->userService->logoutAllDevices(Auth::user());
 
-        return $this->paginated($users, 'Users retrieved');
+            return $this->success(null, 'Logged out from all devices successfully');
+        } catch (Exception $e) {
+            return $this->serverError($e->getMessage());
+        }
     }
 
-    /**
-     * Get single user by ID
-     *
-     * GET /api/users/{id}
-     */
-    public function show(User $user)
+
+    public function index(Request $request)
     {
-        return $this->success(
-            new UserResource($user),
-            'User retrieved successfully'
-        );
+        try {
+            $perPage = $request->get('per_page', 15);
+            $users = $this->userService->getAllUsers($perPage);
+
+            return UserResource::collection($users)->additional([
+                'success' => true,
+                'message' => 'Users retrieved successfully'
+            ]);
+        } catch (Exception $e) {
+            return $this->serverError($e->getMessage());
+        }
     }
 
-    /**
-     * Deactivate user account
-     *
-     * DELETE /api/users/account
-     */
+
+    public function show($id)
+    {
+        try {
+            $user = $this->userService->getUserById($id);
+
+            return $this->success(
+                new UserResource($user),
+                'User retrieved successfully'
+            );
+        } catch (Exception $e) {
+            return $this->notFound('User not found');
+        }
+    }
+
+
     public function deactivateAccount()
     {
-        $user = auth('sanctum')->user();
-        $user->update(['is_active' => false]);
+        try {
+            $this->userService->deactivateAccount(Auth::user());
 
-        return $this->success(null, 'Account deactivated successfully');
+            return $this->success(null, 'Account deactivated successfully');
+        } catch (Exception $e) {
+            return $this->serverError($e->getMessage());
+        }
+    }
+
+
+    public function reactivateAccount()
+    {
+        try {
+            $this->userService->reactivateAccount(Auth::user());
+
+            return $this->success(null, 'Account reactivated successfully');
+        } catch (Exception $e) {
+            return $this->serverError($e->getMessage());
+        }
+    }
+
+
+    public function deleteAccount()
+    {
+        try {
+            $this->userService->deleteAccount(Auth::user());
+
+            return $this->success(null, 'Account deleted successfully');
+        } catch (Exception $e) {
+            return $this->serverError($e->getMessage());
+        }
     }
 }

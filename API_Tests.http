@@ -4,7 +4,7 @@
 
 @baseUrl = http://127.0.0.1:8000/api
 @vendorToken =7|qK5igDJWxiduiYCnCPYCwu8WAaU532Z9DzSxdWVz68697687
-@customerToken =6|xzcxXdzZ23U22HeqbEX0tvagXRtRRIjtIkiH91El914cc71f
+@customerToken =10|1g4hyuMO4wPT7CFlH3eG3hWRznszAzxo8zEFmx2tcc83b0f8
 @productId = 1
 @orderId = 1
 @userId = 1
@@ -60,7 +60,7 @@ Content-Type: application/json
 
 {
   "name": "Test Customer",
-  "email": "test.customer@example.com",
+  "email": "test.customerh@example.com",
   "password": "password123",
   "phone": "+234901000000",
   "address": "123 Main Street",
@@ -76,7 +76,7 @@ POST {{baseUrl}}/users/login
 Content-Type: application/json
 
 {
-  "email": "chioma@customer.com",
+  "email": "test.customerh@example.com",
   "password": "password123"
 }
 
