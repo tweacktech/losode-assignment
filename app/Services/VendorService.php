@@ -11,7 +11,7 @@ use Exception;
  *
  * Manages vendor registration and authentication.
  */
-class AuthService
+class VendorService
 {
     /**
      * Register a new vendor

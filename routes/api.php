@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\AuthController;
+use App\Http\Controllers\VendorController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
@@ -11,8 +11,8 @@ use Illuminate\Support\Facades\Route;
  */
 Route::prefix('')->group(function () {
     // Vendor Authentication
-    Route::post('/vendor/register', [AuthController::class, 'register']);
-    Route::post('/vendor/login', [AuthController::class, 'login']);
+    Route::post('/vendor/register', [VendorController::class, 'register']);
+    Route::post('/vendor/login', [VendorController::class, 'login']);
 
     // User/Customer Authentication
     Route::post('/users/register', [UserController::class, 'register']);
@@ -54,8 +54,8 @@ Route::prefix('')->middleware(['auth:sanctum'])->group(function () {
  */
 Route::prefix('')->middleware(['auth:sanctum'])->group(function () {
     // Auth
-    Route::post('/vendor/logout', [AuthController::class, 'logout']);
-    Route::get('/vendor/me', [AuthController::class, 'me']);
+    Route::post('/vendor/logout', [VendorController::class, 'logout']);
+    Route::get('/vendor/me', [VendorController::class, 'me']);
 
     // Vendor Product Management
     Route::prefix('vendor')->group(function () {

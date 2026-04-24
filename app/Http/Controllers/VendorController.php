@@ -2,64 +2,95 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Vendor;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
+use App\Http\Resources\VendorResource;
+use App\Services\VendorService;
+use App\Traits\ApiResponse;
+use Exception;
 
 class VendorController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    use ApiResponse;
+
+    public function __construct(private VendorService $authService)
     {
-        //
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Register a new vendor
+     *
+     * POST /api/auth/register
      */
-    public function create()
+    public function register(RegisterRequest $request)
     {
-        //
+        try {
+            $vendor = $this->authService->register($request->validated());
+
+            return $this->created(
+                new VendorResource($vendor),
+                'Vendor registered successfully'
+            );
+        } catch (Exception $e) {
+            return $this->conflict($e->getMessage());
+        }
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Login vendor
+     *
+     * POST /api/auth/login
      */
-    public function store(Request $request)
+    public function login(LoginRequest $request)
     {
-        //
+        try {
+            return $result = $this->authService->login(
+                $request->email,
+                $request->password
+            );
+
+            return $this->success([
+                'vendor' => new VendorResource($result['vendor']),
+                'token' => $result['token'],
+            ], 'Login successful');
+        } catch (Exception $e) {
+            \Log::error('Login failed: ' . $e->getMessage(), [
+                'email' => $request->email,
+                'exception' => $e,
+            ]);
+            return $this->unauthorized($e->getMessage());
+        }
     }
 
     /**
-     * Display the specified resource.
+     * Logout vendor (revoke token)
+     *
+     * POST /api/auth/logout
      */
-    public function show(Vendor $vendor)
+    public function logout()
     {
-        //
+        auth('sanctum')->user()->currentAccessToken()->delete();
+
+        return $this->success(null, 'Logged out successfully');
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Get current authenticated vendor
+     *
+     * GET /api/auth/me
      */
-    public function edit(Vendor $vendor)
+    public function me()
     {
-        //
+        return $this->success(
+            new VendorResource(auth('sanctum')->user()),
+            'Current vendor'
+        );
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Vendor $vendor)
+    public function feedback()
     {
-        //
-    }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Vendor $vendor)
-    {
-        //
+        return $this->error('Route/Auth not found', 400);
     }
 }
